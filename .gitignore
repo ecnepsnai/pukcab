@@ -1,0 +1,3 @@
+cmd/pukcab/*
+!cmd/pukcab/*.go
+artifacts/
