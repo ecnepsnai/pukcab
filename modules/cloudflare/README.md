@@ -2,7 +2,7 @@
 
 Module name: `cloudflare`
 
-This module enables you to easily back up DNS zone files for all zones on a Cloudflare account.
+This module enables you toback up DNS zone files for all zones on a Cloudflare account.
 
 # Requirements
 

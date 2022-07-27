@@ -11,7 +11,9 @@ import (
 	"github.com/ecnepsnai/pukcab"
 )
 
-var log = logtic.Connect("pukcab/http")
+var log = logtic.Log.Connect("pukcab/http")
+
+const Name = "http"
 
 type HTTPConfig struct {
 	URL                        string            `json:"url"`
@@ -24,7 +26,7 @@ type HTTPConfig struct {
 type HTTPModule struct{}
 
 func (m HTTPModule) Name() string {
-	return "http"
+	return Name
 }
 
 func (m HTTPModule) Run(c interface{}) ([]pukcab.File, error) {
@@ -33,7 +35,7 @@ func (m HTTPModule) Run(c interface{}) ([]pukcab.File, error) {
 		return nil, fmt.Errorf("invalid config for module")
 	}
 
-	filePath := pukcab.GetFilePath("http", config.FileName)
+	filePath := pukcab.GetFilePath(Name, config.FileName)
 	f, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Error("Error opening destination file for writing: file_path='%s' error='%s'", filePath, err.Error())

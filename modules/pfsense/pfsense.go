@@ -105,7 +105,7 @@ func runBackup(config PFSenseConfig) (*pukcab.File, error) {
 		return nil, fmt.Errorf("http %d", backupResponse.StatusCode)
 	}
 
-	filePath := pukcab.GetFilePath("pfsense", config.HostAddress+".xml")
+	filePath := pukcab.GetFilePath(Name, config.HostAddress+".xml")
 	f, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Error("Error opening destination file: file_path='%s' error='%s'", filePath, err.Error())

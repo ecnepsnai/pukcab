@@ -14,13 +14,15 @@ type TarConfig struct {
 	Sources     []string `json:"sources"`
 }
 
-var log = logtic.Connect("pukcab/tar")
+var log = logtic.Log.Connect("pukcab/tar")
+
+const Name = "tar"
 
 // TarModule the Tar pukcab module
 type TarModule struct{}
 
 func (m TarModule) Name() string {
-	return "tar"
+	return Name
 }
 
 func (m TarModule) Run(c interface{}) ([]pukcab.File, error) {
@@ -33,7 +35,7 @@ func (m TarModule) Run(c interface{}) ([]pukcab.File, error) {
 
 	args := []string{
 		"-czf",
-		pukcab.GetFilePath("tar", config.TarballName),
+		pukcab.GetFilePath(Name, config.TarballName),
 	}
 	args = append(args, config.Sources...)
 	cmd := exec.Command(config.TarPath, args...)
@@ -46,7 +48,7 @@ func (m TarModule) Run(c interface{}) ([]pukcab.File, error) {
 
 	return []pukcab.File{
 		{
-			Path: pukcab.GetFilePath("tar", config.TarballName),
+			Path: pukcab.GetFilePath(Name, config.TarballName),
 		},
 	}, nil
 }

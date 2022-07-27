@@ -65,7 +65,7 @@ func downloadZoneFile(creds CloudflareConfig, zone cloudflareZone) (*pukcab.File
 		return nil, fmt.Errorf("http %d", response.StatusCode)
 	}
 
-	filePath := pukcab.GetFilePath("cloudflare", zone.Name+".txt")
+	filePath := pukcab.GetFilePath(Name, zone.Name+".txt")
 	f, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Error("Error opening destination file: file_path='%s' error='%s'", filePath, err.Error())

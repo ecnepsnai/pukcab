@@ -7,7 +7,9 @@ import (
 	"github.com/ecnepsnai/pukcab"
 )
 
-var log = logtic.Connect("pukcab/cloudflare")
+var log = logtic.Log.Connect("pukcab/cloudflare")
+
+const Name = "cloudflare"
 
 type CloudflareConfig struct {
 	Email  string `json:"cloudflare_email"`
@@ -18,7 +20,7 @@ type CloudflareConfig struct {
 type CloudflareModule struct{}
 
 func (m CloudflareModule) Name() string {
-	return "cloudflare"
+	return Name
 }
 
 func (m CloudflareModule) Run(c interface{}) ([]pukcab.File, error) {

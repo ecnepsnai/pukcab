@@ -11,7 +11,7 @@ import (
 	"github.com/ecnepsnai/logtic"
 )
 
-var log = logtic.Connect("pukcab")
+var log = logtic.Log.Connect("pukcab")
 
 var pukcabConfig *Config
 
@@ -39,18 +39,51 @@ type File struct {
 // RunModule will run the given backup module
 func RunModule(module Module, config interface{}) error {
 	name := module.Name()
-	log.Info("Starting module: module_name='%s'", name)
+	log.PInfo("Starting module", map[string]interface{}{
+		"module_name": name,
+	})
 	start := time.Now()
 	makeDirectoryIfNotExists(path.Join(pukcabConfig.OutputDir, name, time.Now().Format("2006-01-02")))
 	files, err := module.Run(config)
 	if err != nil {
-		log.Error("Error running module: module_name='%s' error='%s'", name, err.Error())
-		return err
+		log.PError("Error running module", map[string]interface{}{
+			"module_name": name,
+			"error":       err.Error(),
+		})
 	}
+	nFiles := 0
 	for _, file := range files {
-		log.Info("Backup artifact saved: module_name='%s' file_path='%s'", name, file.Path)
+		info, err := os.Stat(file.Path)
+		if err != nil {
+			log.PError("Unable to stat module artifact", map[string]interface{}{
+				"module_name": name,
+				"file_path":   file.Path,
+				"error":       err.Error(),
+			})
+			os.Remove(file.Path)
+			continue
+		}
+		if info.Size() == 0 {
+			log.PError("Module produced empty artifact", map[string]interface{}{
+				"module_name": name,
+				"file_path":   file.Path,
+			})
+			os.Remove(file.Path)
+			continue
+		}
+
+		log.PInfo("Backup artifact saved", map[string]interface{}{
+			"module_name": name,
+			"file_path":   file.Path,
+			"size":        logtic.FormatBytesB(uint64(info.Size())),
+		})
+		nFiles++
 	}
-	log.Info("Module finished: module_name='%s' number_files=%d duration_s=%f", name, len(files), time.Since(start).Seconds())
+	log.PInfo("Module finished", map[string]interface{}{
+		"module_name": name,
+		"n_files":     nFiles,
+		"duration":    time.Since(start).String(),
+	})
 	return nil
 }
 
@@ -61,13 +94,18 @@ func CleanupModule(module Module) error {
 	}
 
 	name := module.Name()
-	log.Info("Starting module cleanup: module_name='%s'", name)
+	log.PInfo("Starting module cleanup", map[string]interface{}{
+		"module_name": name,
+	})
 	start := time.Now()
 
 	moduleOutputPath := path.Join(pukcabConfig.OutputDir, name)
 	items, err := os.ReadDir(moduleOutputPath)
 	if err != nil {
-		log.Error("Error reading directory: module_name='%s' directory='%s'", name, moduleOutputPath)
+		log.PError("Error reading directory", map[string]interface{}{
+			"module_name": name,
+			"directory":   moduleOutputPath,
+		})
 		return err
 	}
 
@@ -79,6 +117,30 @@ func CleanupModule(module Module) error {
 			continue
 		}
 		itemPath := path.Join(moduleOutputPath, item.Name())
+
+		subItems, _ := os.ReadDir(itemPath)
+		for _, subItem := range subItems {
+			info, _ := subItem.Info()
+			subItemPath := path.Join(itemPath, subItem.Name())
+			if info.Size() == 0 {
+				log.PWarn("Removing empty artifact", map[string]interface{}{
+					"module": name,
+					"path":   subItemPath,
+				})
+				os.Remove(subItemPath)
+			}
+		}
+		subItems, _ = os.ReadDir(itemPath)
+		if len(subItems) == 0 {
+			log.PWarn("Empty artifact directory", map[string]interface{}{
+				"module": name,
+				"path":   itemPath,
+			})
+			if err := os.RemoveAll(itemPath); err != nil {
+				log.Error("Error removing expired artifact: module='%s' path='%s' error='%s'", name, itemPath, err.Error())
+			}
+			continue
+		}
 
 		dateStr := datePattern.FindString(item.Name())
 		if dateStr == "" {

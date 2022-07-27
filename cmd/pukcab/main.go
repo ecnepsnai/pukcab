@@ -8,8 +8,10 @@ import (
 	"github.com/ecnepsnai/logtic"
 	"github.com/ecnepsnai/pukcab"
 	"github.com/ecnepsnai/pukcab/modules/cloudflare"
+	"github.com/ecnepsnai/pukcab/modules/cmd"
 	httpModule "github.com/ecnepsnai/pukcab/modules/http"
 	"github.com/ecnepsnai/pukcab/modules/pfsense"
+	"github.com/ecnepsnai/pukcab/modules/scp"
 	"github.com/ecnepsnai/pukcab/modules/tar"
 )
 
@@ -18,6 +20,8 @@ var pukcabModules = []pukcab.Module{
 	cloudflare.CloudflareModule{},
 	tar.TarModule{},
 	httpModule.HTTPModule{},
+	scp.SCPModule{},
+	cmd.CmdModule{},
 }
 
 func main() {
@@ -40,7 +44,7 @@ func main() {
 	if config.Verbose {
 		logtic.Log.Level = logtic.LevelDebug
 	}
-	logtic.Open()
+	logtic.Log.Open()
 	pukcab.Configure(config)
 
 	moduleMap := map[string]pukcab.Module{}

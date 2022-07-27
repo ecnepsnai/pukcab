@@ -7,7 +7,9 @@ import (
 	"github.com/ecnepsnai/pukcab"
 )
 
-var log = logtic.Connect("pukcab/pfsense")
+var log = logtic.Log.Connect("pukcab/pfsense")
+
+const Name = "pfsense"
 
 type PFSenseConfig struct {
 	HostAddress                string `json:"host_address"`
@@ -21,7 +23,7 @@ type PFSenseConfig struct {
 type PFSenseModule struct{}
 
 func (m PFSenseModule) Name() string {
-	return "pfsense"
+	return Name
 }
 
 func (m PFSenseModule) Run(c interface{}) ([]pukcab.File, error) {

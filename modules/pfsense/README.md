@@ -2,7 +2,7 @@
 
 Module name: `pfsense`
 
-This module enables you to easily back up the configuration from a running PFSense router.
+This module enables you toback up the configuration from a running PFSense router.
 
 # Requirements
 
