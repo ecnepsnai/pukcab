@@ -3,16 +3,17 @@
 VERSION=${1:?Version required}
 
 function build {
-    GOOS=$1
-    GOARCH=$2
-    CGO_ENABLED=0
-    NAME="pukcab-${VERSION}_${GOOS}_${GOARCH}.tar.gz"
+    export GOOS=$1
+    export GOARCH=$2
+    export CGO_ENABLED=0
+    export NAME="pukcab-${VERSION}_${GOOS}_${GOARCH}.tar.gz"
 
     rm -f pukcab
     go build -ldflags="-s -w" -trimpath -buildmode=exe
     tar -czf ${NAME} pukcab
     rm -f pukcab
     mv ${NAME} ../../artifacts/
+    echo ${NAME}
 }
 
 rm -rf artifacts
